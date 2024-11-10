@@ -7,7 +7,6 @@ export const verifyToken = (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET); // Giải mã token
-        console.log('Decoded: ', decoded); // Log decoded để kiểm tra
         req.userId = decoded.userId; // Lưu trực tiếp userId vào request
         next();
     } catch (error) {
