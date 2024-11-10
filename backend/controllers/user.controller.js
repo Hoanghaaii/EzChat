@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js"
-import { sendResetPasswordEmail } from "../services/sendEmail.js"
+import { sendResetPasswordEmail, sendVerifyEmail } from "../services/sendEmail.js"
+import { generateCode } from "../utils/generateCode.js"
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
@@ -88,3 +89,48 @@ export const resetPassword = async (req, res)=>{
     }
 }
 
+export const verifyEmail = async (req, res)=>{
+    try {
+        const { userId } = req;
+        console.log(`Hello ${userId}`)
+        // Tìm người dùng với userId đã cung cấp
+        const user = await User.findOne({ _id: userId });
+        if (!user) {
+            return res.status(400).json({ message: "No user found!" });
+        }
+
+        // Tạo mã xác minh và lưu vào trường emailVerificationToken
+        const code = generateCode()
+        user.emailVerificationToken = code;
+        user.emailVerificationTokenExpires = Date.now() + 3600000;
+        await user.save();
+
+        // Gửi email xác minh
+        await sendVerifyEmail(user.email, code);
+
+        res.status(200).json({ message: "Verification email sent successfully!" });
+    } catch (error) {
+        console.error("Error verifying email: ", error);
+        res.status(500).json({ message: "Failed to send verification email." });
+    }
+}
+
+export const confirmVerifyEmail = async (req, res)=>{
+    try {
+        const {code} = req.body
+        const user = await User.findOne({emailVerificationToken: code, emailVerificationTokenExpires: {$gt: Date.now()}})
+        if(!user){
+            return res.status(400).json({message: "Cant find user or Code expired!"})
+        }
+        user.isEmailVerified = true
+        user.emailVerificationToken = undefined
+        user.emailVerificationTokenExpires = undefined
+        await user.save()
+        res.status(200).json("Verify Email successfully!")
+    } catch (error) {
+        res.status(500).json({message: "Server error: ", error: error.message})
+    }
+}
+export const checkAuth = async (req, res)=>{
+
+}
