@@ -2,11 +2,11 @@ import mongoose, { Schema } from 'mongoose'
 
 
 const userAchievementSchema = new mongoose.Schema({
-    userId: {type: Schema.Types.userId,
+    userId: {type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    achievementId: {type: Schema.Types.achievementId,
+    achievementId: {type: Schema.Types.ObjectId,
         ref: 'Achievement',
         required: true
     },
