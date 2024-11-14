@@ -5,3 +5,4 @@ const AchievementSchema = mongoose.Schema({
     description: {type: String},
     image: {type: String}
 })
+

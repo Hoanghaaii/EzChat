@@ -1,3 +1,4 @@
+import { postFile } from "../aws/aws.js"
 import { User } from "../models/user.model.js"
 import { sendResetPasswordEmail, sendVerifyEmail } from "../services/sendEmail.js"
 import { generateCode } from "../utils/generateCode.js"
@@ -92,8 +93,6 @@ export const resetPassword = async (req, res)=>{
 export const verifyEmail = async (req, res)=>{
     try {
         const { userId } = req;
-        console.log(`Hello ${userId}`)
-        // Tìm người dùng với userId đã cung cấp
         const user = await User.findOne({ _id: userId });
         if (!user) {
             return res.status(400).json({ message: "No user found!" });
@@ -132,5 +131,43 @@ export const confirmVerifyEmail = async (req, res)=>{
     }
 }
 export const checkAuth = async (req, res)=>{
-
+    try {
+        const {userId} = req
+        console.log(userId)
+        const user =await User.findOne({_id: userId})
+        if(!user){
+            return res.status(400).json({message: "No user auth!"})
+        }
+        res.status(200).json({message: "Check Authencation completely", user})
+    } catch (error) {
+        res.status(400).json({message: "Server error: ", error: error.message})
+    }
 }
+
+export const updateAccount = async (req, res)=>{
+    try {
+        const {userId} = req
+        const {address} = req.body
+        const user = await User.findOne({_id: userId})
+        if(!user){
+            return res.status(400).json({ message: "No valid token found!" });
+        }
+        if(req.file){
+            const uploadResult = await postFile(req, 'avatars');
+            if(!uploadResult.success){
+                console.log(uploadResult.error)
+                return res.status(500).json({message: "Failed to upload avatar!"})
+            }
+            user.avatar = uploadResult.fileUrl
+        }
+        if(address){
+            user.address = address
+        }
+        await user.save()
+        return res.status(200).json({message: "Account updated successfully!"})
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({message: "Server error: ", error: error.message})
+    }
+}
+

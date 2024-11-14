@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, require: true, unique: true},
     password: {type: String, require: true},
     avatar: {type: String},
+    address: {type: String},
     friends: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     isEmailVerified: {type: Boolean, default: false},
     resetPasswordToken: {type: String},

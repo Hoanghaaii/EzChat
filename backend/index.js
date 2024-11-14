@@ -8,8 +8,11 @@ dotenv.config()
 const app = express();
 
 app.use(express.json())
-
 app.use('/api',router)
+
+app.get('/', (req, res)=>{
+    res.send("EzChat Backend!")
+})
 
 const PORT = process.env.PORT
 const server = app.listen(PORT, (req, res)=>{
