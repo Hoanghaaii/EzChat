@@ -4,12 +4,7 @@ const messageSchema = mongoose.Schema({
     sender: {type: Schema.Types.ObjectId, ref: 'User', required: true},
     receiver: {type: Schema.Types.ObjectId, ref: 'User', required: true},
     content: {type: String, required: true},
-    messageType: {
-        type: String,
-        enum: ['text', 'image', 'file'],
-        default: 'text'
-    },
-    status: {type: String, enum: [sent, delivered, read], default: 'sent'},
+    status: {type: String, enum: ['sent', 'delivered', 'read'], default: 'sent'},
     conversationId: {type: Schema.Types.ObjectId, ref: 'Conversation', required: true},
 }, {timestamps: true})
 
