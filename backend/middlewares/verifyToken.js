@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
 
 export const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
+    const token = req.headers['cookie']?.split(';').find(cookie => cookie.trim().startsWith('token='))?.split('=')[1]; //Lấy token được gửi kèm từ headers của req có dạng: "token=" + token
     if (!token) {
         return res.status(403).json({ message: "Access denied. No token provided!" });
     }

@@ -23,9 +23,9 @@ export const signUp = async (req, res)=>{
             password: hashedPassword
         })
         await newUser.save()
-        res.status(201).json({message: "Create user successfully"})
+        return res.status(201).json({message: "Create user successfully"})
     } catch (error) {
-        res.status(500).json({message: "Server error: ", error: error.message})
+        return res.status(500).json({message: "Server error: ", error: error.message})
     }
 }
 
@@ -41,9 +41,9 @@ export const signIn= async (req, res)=>{
             return res.status(400).json({message: "Invalid password!"})
         }
         const token = generateTokenAndSetCookie(res, user._id)
-        res.status(200).json({message: "Login successfully!", token})
+        return res.status(200).json({message: "Login successfully!", token})
     } catch (error) {
-        res.status(500).json({message: "Server error: ", error: error.message})
+        return res.status(500).json({message: "Server error: ", error: error.message})
     }
 }
 
@@ -60,10 +60,10 @@ export const forgotPasword = async (req, res)=>{
     user.resetPasswordExpires = resetPasswordTokenExprises;
     await user.save()
     await sendResetPasswordEmail(user.email, resetPasswordToken)
-    res.status(200).json({message: 'Reset password link has been sent to your email.'})
+    return res.status(200).json({message: 'Reset password link has been sent to your email.'})
     } catch (error) {
         console.error(error)
-        res.status(500).json({message: 'Server error.'})
+        return res.status(500).json({message: 'Server error.'})
     }
 }
 
@@ -84,10 +84,10 @@ export const resetPassword = async (req, res)=>{
         user.resetPasswordExpires = undefined
         await user.save()
         console.log("thanh cong")
-        res.status(200).json({message: "Reset password successfully!"})
+        return res.status(200).json({message: "Reset password successfully!"})
     } catch (error) {
-        res.status(500).json({message: "Server error", error})
         console.log(error)
+        return res.status(500).json({message: "Server error", error})
     }
 }
 
@@ -108,10 +108,10 @@ export const verifyEmail = async (req, res)=>{
         // Gửi email xác minh
         await sendVerifyEmail(user.email, code);
 
-        res.status(200).json({ message: "Verification email sent successfully!" });
+        return res.status(200).json({ message: "Verification email sent successfully!" });
     } catch (error) {
         console.error("Error verifying email: ", error);
-        res.status(500).json({ message: "Failed to send verification email." });
+        return res.status(500).json({ message: "Failed to send verification email." });
     }
 }
 
@@ -126,9 +126,9 @@ export const confirmVerifyEmail = async (req, res)=>{
         user.emailVerificationToken = undefined
         user.emailVerificationTokenExpires = undefined
         await user.save()
-        res.status(200).json("Verify Email successfully!")
+        return res.status(200).json("Verify Email successfully!")
     } catch (error) {
-        res.status(500).json({message: "Server error: ", error: error.message})
+        return res.status(500).json({message: "Server error: ", error: error.message})
     }
 }
 export const checkAuth = async (req, res)=>{
@@ -139,9 +139,9 @@ export const checkAuth = async (req, res)=>{
         if(!user){
             return res.status(400).json({message: "No user auth!"})
         }
-        res.status(200).json({message: "Check Authencation completely", user})
+        return res.status(200).json({message: "Check Authencation completely", user})
     } catch (error) {
-        res.status(400).json({message: "Server error: ", error: error.message})
+        return res.status(400).json({message: "Server error: ", error: error.message})
     }
 }
 
@@ -168,7 +168,7 @@ export const updateAccount = async (req, res)=>{
         return res.status(200).json({message: "Account updated successfully!"})
     } catch (error) {
         console.error(error)
-        res.status(500).json({message: "Server error: ", error: error.message})
+        return res.status(500).json({message: "Server error: ", error: error.message})
     }
 }
 
@@ -183,9 +183,9 @@ export const getFriends = async (req, res)=>{
             return res.status(400).json({ message: "User not found!" });
         }
         console.log(user.friends)
-        res.status(200).json({message: "Get friends successfully!",friend: user.friends})
+        return res.status(200).json({message: "Get friends successfully!",friend: user.friends})
     } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+        return res.status(500).json({ message: "Server error", error: error.message });
     }
 }
 
@@ -213,9 +213,9 @@ export const sendFriendRequest = async (req, res)=>{
             receiver: receiver,
         })
         await friendRequest.save()
-        res.status(200).json({message: "Friend request sent successfully!", id: friendRequest._id})
+        return res.status(200).json({message: "Friend request sent successfully!", id: friendRequest._id})
     } catch (error) {
-        res.status(500).json({message: "Friend request sent failed!", error: error.message})
+        return res.status(500).json({message: "Friend request sent failed!", error: error.message})
     }
 }
 
@@ -263,7 +263,7 @@ export const acceptFriendRequest = async (req, res) => {
       await sender.save();
       await receiver.save();
   
-      res.status(200).json({ message: "Friend request accepted successfully!" });
+      return res.status(200).json({ message: "Friend request accepted successfully!" });
     } catch (error) {
       return res.status(500).json({ message: "Server error", error: error.message });
     }
@@ -297,7 +297,7 @@ export const acceptFriendRequest = async (req, res) => {
       // Update the friend request status to "accepted"
       request.status = "rejected";
       await request.save();
-      res.status(200).json({ message: "Friend request rejected successfully!" });
+      return res.status(200).json({ message: "Friend request rejected successfully!" });
     } catch (error) {
       return res.status(500).json({ message: "Server error", error: error.message });
     }
@@ -313,7 +313,7 @@ export const getPendingRequest = async (req, res)=>{
         if(!pendingRequest){
             return res.status(403).json({ message: "No pending request found!" });
         }
-        res.status(200).json({ message: "Get pending request successfully!", request: pendingRequest });
+        return res.status(200).json({ message: "Get pending request successfully!", request: pendingRequest });
     } catch (error) {
       return res.status(500).json({ message: "Server error", error: error.message });
     }
