@@ -1,13 +1,20 @@
-import mongoose from "mongoose";
 import { Message } from "../models/message.model.js";
 import { Conversation } from "../models/conversation.model.js";
 import { createOrGetConversation, getConversation } from "./conversation.controller.js";
+import { User } from "../models/user.model.js";
 
 export const sendMessage = async (req, res) => {
     try {
         const {sender, receiver, content} = req.body;
         if(!sender || !receiver || !content){
             return res.status(400).json({message: "Missing field!"})
+        }
+        if(sender === receiver){
+            return res.status(400).json({ message: "Can not send message to yourself!" });
+        }
+        const checkIsFriend = await isFriend(sender, receiver)
+        if(!checkIsFriend){
+            return res.status(400).json({ message: "You are not friend!" });
         }
         const conversation = await createOrGetConversation(sender, receiver)
         console.log(conversation)
@@ -84,4 +91,17 @@ export const markMessageAsRead = async (conversationId, receiverId) =>{
     )
 }
 
+const isFriend = async (userId, friendId) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        // Check if friendId is in user's friend list
+        return user.friends.includes(friendId);
+    } catch (error) {
+        console.error("Error checking friendship:", error.message);
+        return false; // Return false if any error occurs
+    }
+};
 
